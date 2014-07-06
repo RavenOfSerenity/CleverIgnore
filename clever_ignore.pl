@@ -29,10 +29,9 @@ sub handleCommand {
 }
 
 my %helpMap = (
-    'list'      => ['Lists available commands'],
     'set'       => ['set <hostmask> <mode> <args>',
                 'If an ignore was already it will be replaced',
-                'For more details about the available modessee help mode'
+                'For more details about the available modes see help mode'
                 ],
     'unset'     => ['unset <hostmask>',
                 'Removes the specified hostmask from the ignore list'
@@ -40,6 +39,8 @@ my %helpMap = (
     'mode'      => ['The mode determines the way the ignore will be performed',
                 'string -> A static string is used as the replacement'
                 ]
+
+    'list'      => ['Lists all ignores hostmasks'],
     
 );
 
