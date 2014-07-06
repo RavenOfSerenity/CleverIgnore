@@ -23,15 +23,9 @@ my %commandMap = (
 sub handleCommand {
     my ($data, $server , $witem) = @_;
     my ($cmd, @args) = split('\s', $data);
-    my $handlerFun = getValueFromMap(\%commandMap,$cmd);
-    if ($handlerFun) { $handlerFun->(@args); }
-}
-
-sub getValueFromMap {
-    my %map = %{$_[0]}; 
-    my $cmd = $_[1];
-    if ($cmd) { return $map{$cmd}; }
-    else { return undef; }
+    if ($cmd && exists $commandMap{$cmd}) { 
+        $commandMap{$cmd}->(@args); 
+    }
 }
 
 my %helpMap = (
@@ -51,31 +45,16 @@ my %helpMap = (
 
 sub handleHelp {
     my $key = $_[0];
-    #irssi_print('key:'.$key);
-    my $vals = getValueFromMap(\%helpMap,$key); 
-    #irssi_print('vals:'.$vals->[0]);
-    #irssi_print('vals:'.$vals->[1]);
-    if(!$vals) { 
+    if($key && exists $helpMap{$key}) { 
+        iter(\&irssi_print, $helpMap{$key}); 
+    } else {
         irssi_print("Available help topics:"); 
-        $vals = [keys %helpMap]; 
-        irssi_print(concat($vals, ' '));
-    } else { iter(\&irssi_print, $vals); }
+        irssi_print(join(' ',keys %helpMap));
+    } 
 }
 
 sub irssi_print {
     Irssi::print($_[0]);
-}
-
-sub concat { #TODO use join instead #TODO use join instead #TODO use join instead #TODO use join instead
-    my @arr = @{$_[0]};
-    my $sep = $_[1];
-    my $len = @arr;
-    my $res = '';
-    if($len>0) { $res = $arr[0]; }
-    for my $i (1..$len-1){
-        $res = $res.$sep.$arr[$i];  
-    }
-    return $res;
 }
 
 sub iter {
