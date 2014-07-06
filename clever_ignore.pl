@@ -24,9 +24,12 @@ my %commandMap = (
 
 sub handleCommand {
     my ($data, $server , $witem) = @_;
+    my $printFun;
+    if($witem) { $printFun = sub { $witem->print(@_);}; }
+    else { $printFun = sub { Irssi::print(@_[0]); }; }
     my ($cmd, $arg_str) = split('\s', $data, 2);
     if ($cmd && exists $commandMap{$cmd}) { 
-        $commandMap{$cmd}->($witem, $arg_str); 
+        $commandMap{$cmd}->($printFun, $arg_str); 
     }
 }
 
@@ -34,31 +37,31 @@ my @available_modes = ('string');
 my @hostmasks = ();
 
 sub handleSet {
-    my $witem = $_[0];
+    my $printFun = $_[0];
     my $arg_str = $_[1];
     my @args = ();
     if($arg_str) {
         @args = split('\s',$arg_str,3);
     }
-    if(@args != 3) { $witem->print('Incorrect usage, see help set'); }
+    if(@args != 3) { $printFun->('Incorrect usage, see help set'); }
     else {
         my ($hostmask, $mode, $args_cmd) = @args;
         if( $mode ~~ @available_modes) {
             push(@hostmasks,[$hostmask, $mode, $args_cmd]);
-            $witem->print($hostmask." has been succesfully added");
+            $printFun->($hostmask." has been succesfully added");
         }else{
-            $witem->print($mode." is not a valid mode mode, see help mode");
+            $printFun->($mode." is not a valid mode mode, see help mode");
         }
     }
 }
 
 sub handleList {
-    my $witem = $_[0];
-    if( @hostmasks == 0 ) { $witem->print("No hostmasks have been set"); }
+    my $printFun = $_[0];
+    if( @hostmasks == 0 ) { $printFun->("No hostmasks have been set"); }
     else {
-        $witem->print("[hostname] [mode] [arg string]");
+        $printFun->("[hostname] [mode] [arg string]");
         foreach my $item (@hostmasks) {
-            $witem->print(join(' ',(@{$item})));
+            $printFun->(join(' ',(@{$item})));
         }
     } 
 }
@@ -79,18 +82,14 @@ my %helpMap = (
 );
 
 sub handleHelp {
-    my $witem = $_[0];
+    my $printFun = $_[0];
     my $key = $_[1];
     if($key && exists $helpMap{$key}) { 
-        iter(sub{ $witem->print(@_); }, $helpMap{$key}); 
+        iter(sub{ $printFun->(@_); }, $helpMap{$key}); 
     } else {
-        $witem->print("Available help topics:"); 
-        $witem->print(join(' ',keys %helpMap));
+        $printFun->("Available help topics:"); 
+        $printFun->(join(' ',keys %helpMap));
     } 
-}
-
-sub irssi_print {
-    Irssi::print($_[0]);
 }
 
 sub iter {
