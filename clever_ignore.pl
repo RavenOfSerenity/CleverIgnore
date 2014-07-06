@@ -4,7 +4,7 @@ use warnings;
 use vars qw($VERSION %IRSSI);
 use Irssi;
 
-$VERSION = '0.1';
+$VERSION = '0.1.1';
 %IRSSI = (
     authors     => 'Radditz',
     name        => 'clever_ignore',
@@ -17,16 +17,50 @@ my $commandName = "clever_ignore";
 #as technically solid as anybody \ knows the ins and outs
 #writes perl in his sleep
 my %commandMap = (
-    'help' => \&handleHelp
+    'help'  => \&handleHelp,
+    'set'   => \&handleSet,
+    'list'  => \&handleList
 );
 
 sub handleCommand {
     my ($data, $server , $witem) = @_;
-    Irssi::print(ref $witem);
     my ($cmd, $arg_str) = split('\s', $data, 2);
     if ($cmd && exists $commandMap{$cmd}) { 
         $commandMap{$cmd}->($witem, $arg_str); 
     }
+}
+
+my @available_modes = ('string');
+my @hostmasks = ();
+
+sub handleSet {
+    my $witem = $_[0];
+    my $arg_str = $_[1];
+    my @args = ();
+    if($arg_str) {
+        @args = split('\s',$arg_str,3);
+    }
+    if(@args != 3) { $witem->print('Incorrect usage, see help set'); }
+    else {
+        my ($hostmask, $mode, $args_cmd) = @args;
+        if( $mode ~~ @available_modes) {
+            push(@hostmasks,[$hostmask, $mode, $args_cmd]);
+            $witem->print($hostmask." has been succesfully added");
+        }else{
+            $witem->print($mode." is not a valid mode mode, see help mode");
+        }
+    }
+}
+
+sub handleList {
+    my $witem = $_[0];
+    if( @hostmasks == 0 ) { $witem->print("No hostmasks have been set"); }
+    else {
+        $witem->print("[hostname] [mode] [arg string]");
+        foreach my $item (@hostmasks) {
+            $witem->print(join(' ',(@{$item})));
+        }
+    } 
 }
 
 my %helpMap = (
