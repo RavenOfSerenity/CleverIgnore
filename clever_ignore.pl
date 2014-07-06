@@ -22,9 +22,10 @@ my %commandMap = (
 
 sub handleCommand {
     my ($data, $server , $witem) = @_;
-    my ($cmd, @args) = split('\s', $data);
+    Irssi::print(ref $witem);
+    my ($cmd, $arg_str) = split('\s', $data, 2);
     if ($cmd && exists $commandMap{$cmd}) { 
-        $commandMap{$cmd}->(@args); 
+        $commandMap{$cmd}->($witem, $arg_str); 
     }
 }
 
@@ -38,19 +39,19 @@ my %helpMap = (
                 ],
     'mode'      => ['The mode determines the way the ignore will be performed',
                 'string -> A static string is used as the replacement'
-                ]
-
-    'list'      => ['Lists all ignores hostmasks'],
+                ],
+    'list'      => ['Lists all ignored hostmasks'],
     
 );
 
 sub handleHelp {
-    my $key = $_[0];
+    my $witem = $_[0];
+    my $key = $_[1];
     if($key && exists $helpMap{$key}) { 
-        iter(\&irssi_print, $helpMap{$key}); 
+        iter(sub{ $witem->print(@_); }, $helpMap{$key}); 
     } else {
-        irssi_print("Available help topics:"); 
-        irssi_print(join(' ',keys %helpMap));
+        $witem->print("Available help topics:"); 
+        $witem->print(join(' ',keys %helpMap));
     } 
 }
 
