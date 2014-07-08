@@ -27,9 +27,10 @@ my $commandName = "clever_ignore";
 #as technically solid as anybody \ knows the ins and outs
 #writes perl in his sleep
 my %commandMap = (
-    'help'  => \&handleHelp,
-    'set'   => \&handleSet,
-    'list'  => \&handleList
+    'help'      => \&handleHelp,
+    'set'       => \&handleSet,
+    'list'      => \&handleList,
+    'remove'    => \&handleRemove,
 );
 
 sub handleCommand {
@@ -44,7 +45,6 @@ sub handleCommand {
 }
 
 my @available_modes = ('string');
-#TODO: switch to map, makes re-setting easier
 my %hostmasks = ();
 
 sub handleSet {
@@ -66,6 +66,17 @@ sub handleSet {
     }
 }
 
+sub handleRemove {
+    my $printFun = $_[0];
+    my $hostmask = $_[1];
+    if($hostmask &&  exists $hostmasks{$hostmask} ) {
+        delete $hostmasks{$hostmask};
+        $printFun->($hostmask." has been succesfully removed");
+    }else {
+        $printFun->($hostmask." does not exist, it was never set.");
+    }
+}
+
 sub handleList {
     my $printFun = $_[0];
     my @keys = keys %hostmasks;
@@ -83,7 +94,7 @@ my %helpMap = (
                 'If an ignore was already it will be replaced',
                 'For more details about the available modes see help mode'
                 ],
-    'unset'     => ['unset <hostmask>',
+    'remove'     => ['remove <hostmask>',
                 'Removes the specified hostmask from the ignore list'
                 ],
     'mode'      => ['The mode determines the way the ignore will be performed',
