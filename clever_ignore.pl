@@ -41,6 +41,9 @@ sub handleCommand {
     my ($cmd, $arg_str) = split('\s', $data, 2);
     if ($cmd && exists $commandMap{$cmd}) { 
         $commandMap{$cmd}->($printFun, $arg_str); 
+    }else {
+        if(! $cmd) { $cmd=""; }
+        $printFun->("'".$cmd."' is not a valid command. Use help for a list of commands");
     }
 }
 
