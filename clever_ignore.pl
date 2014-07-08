@@ -47,7 +47,7 @@ sub handleCommand {
     }
 }
 
-my @available_modes = ('string');
+my @available_modes = ('string',"command");
 my %hostmasks = ();
 
 sub handleSet {
@@ -101,7 +101,8 @@ my %helpMap = (
                 'Removes the specified hostmask from the ignore list'
                 ],
     'mode'      => ['The mode determines the way the ignore will be performed',
-                'string -> A static string is used as the replacement'
+                'string -> A static string is used as the replacement',
+                'command -> The given command is executed and it\'s output is used as the replacement'
                 ],
     'list'      => ['Lists all ignored hostmasks'],
     
@@ -130,6 +131,11 @@ sub iter {
 sub handlePrivMsg {
     my ($mode,$arg_str,$msg) = @_;
     if($mode eq 'string') { return $arg_str; }
+    elsif($mode eq 'command') {
+        my $output = `$arg_str`;
+        if($output) { return $output; }
+        else { return "Warning! the command $arg_str didn't output anything"; }
+    }
 }
 
 sub handleEventPrivMsg {
