@@ -1,4 +1,4 @@
-#! /usr/bin/per
+#! /usr/bin/perl
 #Copyright (c) <YEAR>, <OWNER>
 #All rights reserved.
 #
@@ -37,7 +37,7 @@ sub handleCommand {
     my ($data, $server , $witem) = @_;
     my $printFun;
     if($witem) { $printFun = sub { $witem->print(@_);}; }
-    else { $printFun = sub { Irssi::print(@_[0]); }; }
+    else { $printFun = sub { Irssi::print($_[0]); }; }
     my ($cmd, $arg_str) = split('\s', $data, 2);
     if ($cmd && exists $commandMap{$cmd}) { 
         $commandMap{$cmd}->($printFun, $arg_str); 
@@ -127,4 +127,26 @@ sub iter {
 
 }
 
+sub handlePrivMsg {
+    my ($mode,$arg_str,$msg) = @_;
+    if($mode eq 'string') { return $arg_str; }
+}
+
+sub handleEventPrivMsg {
+    my ($server, $data, $nick, $address) = @_;
+    my ($target, $text) = split(/ :/, $data, 2);
+    foreach my $hostmask (keys %hostmasks) {
+        if( $server->mask_match_address($hostmask, $nick, $address) ) {
+            my ($mode,$arg_str) = @{$hostmasks{$hostmask}};
+            my $replacement = handlePrivMsg($mode, $arg_str, $text);
+            Irssi::signal_stop();
+            Irssi::signal_emit('event privmsg', ($server, $replacement, $nick, $address));
+                    
+        }
+    }    
+}
+
+
+
+Irssi::signal_add('event privmsg','handleEventPrivMsg');
 Irssi::command_bind($commandName,'handleCommand');
