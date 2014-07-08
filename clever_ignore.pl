@@ -45,7 +45,7 @@ sub handleCommand {
 
 my @available_modes = ('string');
 #TODO: switch to map, makes re-setting easier
-my @hostmasks = ();
+my %hostmasks = ();
 
 sub handleSet {
     my $printFun = $_[0];
@@ -58,7 +58,7 @@ sub handleSet {
     else {
         my ($hostmask, $mode, $args_cmd) = @args;
         if( $mode ~~ @available_modes) {
-            push(@hostmasks,[$hostmask, $mode, $args_cmd]);
+            $hostmasks{$hostmask} = [$mode, $args_cmd];
             $printFun->($hostmask." has been succesfully added");
         }else{
             $printFun->($mode." is not a valid mode mode, see help mode");
@@ -68,11 +68,12 @@ sub handleSet {
 
 sub handleList {
     my $printFun = $_[0];
-    if( @hostmasks == 0 ) { $printFun->("No hostmasks have been set"); }
+    my @keys = keys %hostmasks;
+    if( @keys == 0 ) { $printFun->("No hostmasks have been set"); }
     else {
         $printFun->("[hostname] [mode] [arg string]");
-        foreach my $item (@hostmasks) {
-            $printFun->(join(' ',(@{$item})));
+        foreach my $key (@keys) {
+            $printFun->($key.' '.join(' ',(@{$hostmasks{$key}})));
         }
     } 
 }
