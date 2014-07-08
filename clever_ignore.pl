@@ -139,9 +139,7 @@ sub handleEventPrivMsg {
         if( $server->mask_match_address($hostmask, $nick, $address) ) {
             my ($mode,$arg_str) = @{$hostmasks{$hostmask}};
             my $replacement = handlePrivMsg($mode, $arg_str, $text);
-            Irssi::signal_stop();
-            Irssi::signal_emit('event privmsg', ($server, $replacement, $nick, $address));
-                    
+            Irssi::signal_continue($server, "$target :$replacement", $nick, $address);
         }
     }    
 }
