@@ -14,7 +14,7 @@ use warnings;
 use vars qw($VERSION %IRSSI);
 use Irssi;
 
-$VERSION = '0.1.1';
+$VERSION = '0.1.2';
 %IRSSI = (
     authors     => 'Radditz',
     name        => 'clever_ignore',
@@ -43,7 +43,7 @@ sub handleCommand {
         $commandMap{$cmd}->($printFun, $arg_str); 
     }else {
         if(! $cmd) { $cmd=""; }
-        $printFun->("'".$cmd."' is not a valid command. Use help for a list of commands");
+        $printFun->("'$cmd' is not a valid command. Use help for a list of commands");
     }
 }
 
@@ -62,9 +62,9 @@ sub handleSet {
         my ($hostmask, $mode, $args_cmd) = @args;
         if( $mode ~~ @available_modes) {
             $hostmasks{$hostmask} = [$mode, $args_cmd];
-            $printFun->($hostmask." has been succesfully added");
+            $printFun->("'$hostmask' has been succesfully added");
         }else{
-            $printFun->($mode." is not a valid mode mode, see help mode");
+            $printFun->("'$mode' is not a valid mode mode, see help mode");
         }
     }
 }
@@ -74,9 +74,9 @@ sub handleRemove {
     my $hostmask = $_[1];
     if($hostmask &&  exists $hostmasks{$hostmask} ) {
         delete $hostmasks{$hostmask};
-        $printFun->($hostmask." has been succesfully removed");
+        $printFun->("'$hostmask' has been succesfully removed");
     }else {
-        $printFun->($hostmask." does not exist, it was never set.");
+        $printFun->("'$hostmask' does not exist, it was never set.");
     }
 }
 
@@ -134,7 +134,7 @@ sub handlePrivMsg {
     elsif($mode eq 'command') {
         my $output = `$arg_str`;
         if($output) { return $output; }
-        else { return "Warning! the command $arg_str didn't output anything"; }
+        else { return "Warning! the command '$arg_str' didn't output anything"; }
     }
 }
 
