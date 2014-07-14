@@ -14,7 +14,7 @@ use warnings;
 use vars qw($VERSION %IRSSI);
 use Irssi;
 
-$VERSION = '0.1.2';
+$VERSION = '0.1.3';
 %IRSSI = (
     authors     => 'Radditz',
     name        => 'clever_ignore',
@@ -138,19 +138,21 @@ sub handlePrivMsg {
     }
 }
 
-sub handleEventPrivMsg {
-    my ($server, $data, $nick, $address) = @_;
-    my ($target, $text) = split(/ :/, $data, 2);
+sub handleMessageEvent {
+    my ($server, $msg, $nick, $address, $target) = @_;
     foreach my $hostmask (keys %hostmasks) {
         if( $server->mask_match_address($hostmask, $nick, $address) ) {
             my ($mode,$arg_str) = @{$hostmasks{$hostmask}};
-            my $replacement = handlePrivMsg($mode, $arg_str, $text);
-            Irssi::signal_continue($server, "$target :$replacement", $nick, $address);
+            my $replacement = handlePrivMsg($mode, $arg_str, $msg);
+            Irssi::signal_continue($server, $replacement, $nick, $address, $target);
         }
     }    
 }
 
 
 
-Irssi::signal_add('event privmsg','handleEventPrivMsg');
+Irssi::signal_add('message public','handleMessageEvent');
+Irssi::signal_add('message private','handleMessageEvent');
+Irssi::signal_add('message irc notice','handleMessageEvent');
+Irssi::signal_add('message irc action','handleMessageEvent');
 Irssi::command_bind($commandName,'handleCommand');
