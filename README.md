@@ -41,6 +41,4 @@ And finally a very useful command
 #Known Limitations
 -State is not persistent, if you quit irssi, next time you must set again your hostmasks
 
--Only PRIVMSG events are taken care of for now, /me for example still works
-
 -Potentially further bugs
